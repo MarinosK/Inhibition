@@ -35,7 +35,7 @@ var master_channel = 35;
 						arg value; signal[sample] = value;
 						if (sample == 127) { // on the last sample
 							signal = signal * Signal.welchWindow(128); // smooth it out
-							fork{
+							Routine({
 								100.do{ // morph with previous contents !!
 									~audio_engine[\previous_signal][i] = ~audio_engine[\previous_signal][i].blend(signal,0.03);
 									~audio_engine[\buffers][i+1].sendCollection(~audio_engine[\previous_signal][i].normalize.asWavetable);
@@ -46,7 +46,7 @@ var master_channel = 35;
 									condition.signal;
 									buf.free;
 								};
-							};
+							}).play(AppClock);
 						};
 					}); 
 				};
@@ -58,7 +58,7 @@ var master_channel = 35;
 };
 
 // constantly runing audio loop
-fork {
+Routine({
 	// init buffers
 	var signal = Signal.hanningWindow(128);
 	~audio_engine[\buffers].do{arg b; b.sendCollection(signal.asWavetable);};
@@ -98,4 +98,4 @@ fork {
 			0.2.wait;	
 		} 
 	}
-};
+}).play(AppClock);
