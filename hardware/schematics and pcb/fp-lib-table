@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name con-neutrik_ag)(type Legacy)(uri "/Library/Application Support/kicad/library/converted/con-neutrik_ag.mod")(options "")(descr ""))
+  (lib (name con-jack)(type Legacy)(uri "/Library/Application Support/kicad/library/converted/con-jack.mod")(options "")(descr ""))
+)
