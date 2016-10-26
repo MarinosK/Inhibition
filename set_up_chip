@@ -1,6 +1,6 @@
 - flash
 http://flash.getchip.com/
-flash -> Debian 4.4
+flash -> Debian 4.4 (Headless or GUI)
 
 - first update
 sudo apt-get update
@@ -25,7 +25,18 @@ modify settings in /etc/dbus-1/system.conf by adding this at the end just before
 </policy>
 sudo su # IMPORTANT
 export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
+export DISPLAY=:0 # needed for headless setup
 jackd -P75 -dalsa -Phw:0 -p1024 -n3 -s -r44100 -S &
+(if you experience Xruns try with a bigger block size)
+
+- optional, set up RT priority for Jack
+edit /etc/security/limits.conf and put these
+@realtime   -  rtprio     99
+@realtime   -  memlock    unlimited
+then as su:
+groupadd realtime
+usermod -a -G realtime root
+usermod -a -G realtime chip
 
 - set up SC
 (su chip)
@@ -52,8 +63,12 @@ export CC=/usr/bin/gcc-4.8
 export CXX=/usr/bin/g++-4.8
 cmake -DSC_PATH=/home/chip/supercollider ..
 make
-make install
-- then copy the plugins to usr/local/share/Supercollider/Extensions 
+sudo make install
+
+- some essential tools
+sudo apt-get install clang sox python3 python3-setuptools
+sudo wget -O /usr/local/bin/gpio.sh http://fordsfords.github.io/gpio_sh/gpio.sh
+
 
 - set up SPI support (requires new kernel)
 wget https://dl.dropboxusercontent.com/u/48891705/chip/4.4.11w1TH%2B.tgz
@@ -66,11 +81,6 @@ cp vmlinuz-4.4.11w1TH+ zImage
 
 (a test and some info here: http://www.chip-community.org/index.php/SPI_support)
 
-- some essential tools
-sudo apt-get install clang
-sudo apt-get install sox
-sudo wget -O /usr/local/bin/gpio.sh http://fordsfords.github.io/gpio_sh/gpio.sh
-
 - auto boot
 add to /etc/rc.local:
 source /usr/local/bin/gpio.sh
@@ -82,25 +92,6 @@ gpio_direction XIO_P1 in
 export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
 jackd -P75 -dalsa -Phw:0 -p1024 -n3 -s -r44100 &
 exit 0
-
-create  /etc/init.d/autostart.sh and add: 
-#!/bin/bash
-sleep 60
-/usr/local/bin/sclang -D /home/chip/inhibition.scd
-chmod +x ~/autostart.sh
-
-create  /etc/systemd/system/inhibition.service
-[Unit]
-Description=Start Inhibition
-[Install]
-WantedBy=multi-user.target
-[Service]
-Type=oneshot
-RemainAfterExit=yes
-ExecStart=/etc/init.d/autostart.sh
-
-sudo systemctl enable octoprint.service
-
 
 - clean up
 /etc/init.d/halt

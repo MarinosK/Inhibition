@@ -89,7 +89,7 @@
       (mirror false)
       (drillshape 0)
       (scaleselection 1)
-      (outputdirectory /Users/marinos/projects/ongoing/Inhibition/pcb/gerber/))
+      (outputdirectory ../../../../../Desktop/))
   )
 
   (net 0 "")

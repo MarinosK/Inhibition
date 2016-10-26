@@ -6,11 +6,12 @@
 
 ~eeg_handler = Environment.new; 
 ~eeg_handler.use{
-	~data = Dictionary[(\pitch->[]),(\centroid->[]),(\complexity->[]),(\weightedspectralmaximum->[]),
-		(\sharpness->[]),(\dissonance->[]),(\spread->[]),(\slope->[])]!2; // an array of two dictionaries
 	//	~buffers = Array.fill(2,{Buffer.new(Server.default)});
 	~get_eeg = { // get and analyse eeg signal
 		var dcshift = Array.newClear(2);
+		var features = Dictionary[(\pitch->0),(\centroid->0),(\complexity->0),(\weightedspectralmaximum->0),
+			(\sharpness->0),(\dissonance->0),(\spread->0),(\slope->0)]!2; // an array of two dictionaries
+		// var condition = Condition(false);
 		// clean previous results and get new data
 		"rm *wav".systemCmd;
 		"reading eeg data over spi..".postln;
@@ -38,31 +39,24 @@
 				var data = [d.findAll("["), d.findAll("]")].flop.collect{arg pair;
 					d[pair[0]..pair[1]].interpret;
 				};
-				~eeg_handler[\data][i][\pitch] = ~eeg_handler[\data][i][\pitch].add(data[0][0]);
-				~eeg_handler[\data][i][\centroid] = ~eeg_handler[\data][i][\centroid].add(data[2][0]);
-				~eeg_handler[\data][i][\complexity] = ~eeg_handler[\data][i][\complexity].add(data[3][0]);
-				~eeg_handler[\data][i][\weightedspectralmaximum] = ~eeg_handler[\data][i][\weightedspectralmaximum].add(data[4][0]);
-				~eeg_handler[\data][i][\sharpness] = ~eeg_handler[\data][i][\sharpness].add(data[5][0]);
-				~eeg_handler[\data][i][\dissonance] = ~eeg_handler[\data][i][\dissonance].add(data[6][0]);
-				~eeg_handler[\data][i][\spread] = ~eeg_handler[\data][i][\spread].add(data[7][0]);
-				~eeg_handler[\data][i][\slope] = ~eeg_handler[\data][i][\slope].add(data[8][0]);
+				features[i][\pitch] = data[0][0];
+				features[i][\centroid] = data[2][0];
+				features[i][\complexity] = data[3][0];
+				features[i][\weightedspectralmaximum] = data[4][0];
+				features[i][\sharpness] = data[5][0];
+				features[i][\dissonance] = data[6][0];
+				features[i][\spread] = data[7][0];
+				features[i][\slope] = data[8][0];
+				// if (i==1) {
+				// 	condition.test_(true);
+				// 	condition.signal;
+				// };
 			}, delimiter:";",startRow:1);
 		};
+		// condition.wait;
 		"rm *csv".unixCmd;
 		// clean temporaries
 		"rm temp*".unixCmd;
-	};
-	~get_audio_parameters = {
-		// for now only return target frequency
-		var target = (~eeg_handler[\data][0][\pitch].last + ~eeg_handler[\data][1][\pitch].last) / 2;
-		target = target + [rrand(0.7,1.7),rrand(-0.7,-1.7)].choose;
-		target;
-	};
-	~assess_and_learn = {
-		
-	};
-	~reset = {
-		~eeg_handler[\data] = Dictionary[(\pitch->[]),(\centroid->[]),(\complexity->[]),(\weightedspectralmaximum->[]),
-			(\sharpness->[]),(\dissonance->[]),(\spread->[]),(\slope->[])]!2; // an array of two dictionaries
+		features; // return features
 	};
 };

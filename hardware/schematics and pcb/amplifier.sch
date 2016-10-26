@@ -1121,7 +1121,6 @@ NoConn ~ 9800 6100
 NoConn ~ 9800 6000
 NoConn ~ 9800 5900
 NoConn ~ 9800 5800
-NoConn ~ 9800 5700
 NoConn ~ 9800 5200
 NoConn ~ 9800 5100
 NoConn ~ 9800 5000
@@ -1403,8 +1402,6 @@ Wire Wire Line
 Wire Wire Line
 	3350 4100 3350 4150
 Wire Wire Line
-	8950 4800 9200 4800
-Wire Wire Line
 	7800 1900 7800 2150
 Connection ~ 7800 2150
 Wire Wire Line
@@ -1678,9 +1675,7 @@ Connection ~ 4600 7000
 Wire Wire Line
 	7900 2700 8100 2700
 Wire Wire Line
-	9200 4900 9100 4900
-Wire Wire Line
-	9100 4900 9100 2700
+	9100 2700 9100 6400
 Wire Wire Line
 	9100 2700 9000 2700
 Wire Wire Line
@@ -1701,8 +1696,6 @@ Wire Wire Line
 	7850 2900 7850 3300
 Wire Wire Line
 	7850 2900 8100 2900
-Wire Wire Line
-	8950 2900 8950 4800
 Connection ~ 7800 4400
 Wire Wire Line
 	8700 3300 8950 3300
@@ -1719,4 +1712,15 @@ F 3 "" H 10350 3100 50  0000 C CNN
 	1    10350 3100
 	1    0    0    -1  
 $EndComp
+Wire Wire Line
+	8950 2900 8950 4600
+NoConn ~ 9200 4800
+Wire Wire Line
+	9100 6400 9950 6400
+Wire Wire Line
+	9950 6400 9950 5700
+Wire Wire Line
+	9950 5700 9800 5700
+NoConn ~ 9200 4900
+NoConn ~ 1800 5300
 $EndSCHEMATC
