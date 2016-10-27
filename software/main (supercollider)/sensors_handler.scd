@@ -14,7 +14,12 @@
 		var value = "./read_pot".unixCmdGetStdOut;
 		(value.asInt / 1023);
 	};
-	
+	~led_on = {
+		"source /usr/local/bin/gpio.sh && gpio_output CSID5 1".unixCmd;
+	};
+	~led_off = {
+		"source /usr/local/bin/gpio.sh && gpio_output CSID5 0".unixCmd;
+	}
 }
 
 

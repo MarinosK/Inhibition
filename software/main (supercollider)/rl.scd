@@ -8,15 +8,16 @@
 ~rl_handler = Environment.new();
 ~rl_handler.use{
 	~target = 10;
+	~previous_pitch = 10;
 	~possibilities = Dictionary[
 		(\duration -> [30,35,42,56,64,88,106,128,140]),
 		(\vibRate -> [0.25,0.5,1,2,3,4,6,8]),
 		(\density -> [1,2,3,4]),
-		(\pan -> [0.06,0.125,0.25,0.5,1,2,3,4,6,8]),
+		(\pan -> [0.015,0.03,0.06,0.125,0.25,0.5,1,2,3,4,6,8]),
 		(\vibRange -> [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7]),
 		(\amp -> [0.3,0.4,0.5,0.6,0.7,0.8,0.9]),
 		(\morphRate -> [0.25,0.5,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]),
-		(\target -> [-2.0, -1.5, -1.0, -0.5, 0.5, 1.0, 1.5, 2.0])
+		(\target -> [-2.0, -1.5, -1.0, 1.0, 1.5, 2.0])
 	];
 	~indices = Dictionary[
 		(\duration -> ~possibilities[\duration].size.rand),
@@ -28,12 +29,45 @@
 		(\morphRate -> ~possibilities[\morphRate].size.rand),
 		(\target -> ~possibilities[\target].size.rand)
 	];
+	~create_data_file = { arg features, actions;
+		var f = "";
+		var a = "";
+		var possibilities = ~rl_handler[\possibilities];
+		"creating training data".postln;
+		"rm train.data".systemCmd;
+		"echo 1 16 8 >> train.data".systemCmd;
+		features.do{arg feat_per_channel;
+			// map to a 0,1 range
+			// double check that the ranges are correct
+			f = f ++
+			ControlSpec(0,30).unmap(feat_per_channel[\pitch]) ++ " " ++ 
+			ControlSpec(0,30).unmap(feat_per_channel[\centroid]) ++ " " ++ 
+			feat_per_channel[\complexity] ++ " " ++ 
+			ControlSpec(2,60).unmap(feat_per_channel[\weightedspectralmaximum]) ++ " " ++ 
+			ControlSpec(0,700).unmap(feat_per_channel[\sharpness]) ++ " " ++ 
+			feat_per_channel[\dissonance] ++ " " ++ 
+			ControlSpec(-15,15).unmap(feat_per_channel[\spread]) ++ " " ++ 
+			ControlSpec(-15,15).unmap(feat_per_channel[\slope]) ++ " ";
+		};
+		("echo " ++ f ++ " >> train.data").systemCmd;
+		a = a ++
+		ControlSpec(0,possibilities[\duration].size).unmap(actions[\duration]) ++ " " ++
+		ControlSpec(0,possibilities[\vibRate].size).unmap(actions[\vibRate]) ++ " " ++
+		ControlSpec(0,possibilities[\density].size).unmap(actions[\density]) ++ " " ++
+		ControlSpec(0,possibilities[\pan].size).unmap(actions[\pan]) ++ " " ++
+		ControlSpec(0,possibilities[\vibRange].size).unmap(actions[\vibRange]) ++ " " ++
+		ControlSpec(0,possibilities[\amp].size).unmap(actions[\amp]) ++ " " ++
+		ControlSpec(0,possibilities[\morphRate].size).unmap(actions[\morphRate]) ++ " " ++
+		ControlSpec(0,possibilities[\target].size).unmap(actions[\target]) ++ " ";
+		("echo " ++ a ++ " >> train.data").systemCmd;
+	};
 	~action = { arg features;
 		var possibilities = ~rl_handler[\possibilities];
 		var indices = ~rl_handler[\indices];
 		var audio_parameters = Dictionary[];
 		var pitch = (features[0][\pitch] + features[1][\pitch]) / 2;
 		var target = pitch + possibilities[\target][indices[\target]];
+		~rl_handler[\previous_pitch] = pitch;
 		~rl_handler[\target] = target;
 		audio_parameters[\target] = target;
 		audio_parameters[\duration] = possibilities[\duration][indices[\duration]];
@@ -42,10 +76,13 @@
 		audio_parameters[\pan] = target * possibilities[\pan][indices[\pan]];
 		audio_parameters[\vibRange] = possibilities[\vibRange][indices[\vibRange]];
 		audio_parameters[\amp] = possibilities[\amp][indices[\amp]];
-		audio_parameters[\morphRate] = possibilities[\morphRate][indices[\morphRate]] * target;		
+		audio_parameters[\morphRate] = possibilities[\morphRate][indices[\morphRate]] * target;
+		audio_parameters.postln;
 		audio_parameters; // return the audio parameters
 	};
 	~reset = {
+		"reseting".postln;
+		"./neural_net create".systemCmd; // createa the neural network using a utility program
 		~rl_handler[\indices] = Dictionary[
 			(\duration -> ~rl_handler[\possibilities][\duration].size.rand),
 			(\vibRate -> ~rl_handler[\possibilities][\virRate].size.rand),
@@ -59,19 +96,40 @@
 	};
 	~learn = { arg features;
 		var pitch = (features[0][\pitch] + features[1][\pitch]) / 2;
-		var reward = 1 - (~rl_handler[\target] - pitch).abs;
+		// not sure if I want to measure performance with respect to the target frequency or simply with respect to whether any change has been achieved
+		// var reward = 0.6 - (~rl_handler[\target] - pitch).abs; // if performance is better than 0.6Hz then we can go on train the network
+		var reward = (~rl_handler[\previous_pitch] - pitch).abs - 0.5; // if performance is better than 0.5Hz then we can go on train the network
 		var indices = ~rl_handler[\indices];
 		var possibilities = ~rl_handler[\possibilities];
-
-		
-		// set randomly for now until I think of a more clever algorithm
-		indices[\duration] = ~rl_handler[\possibilities][\duration].size.rand;
-		indices[\vibRate] = ~rl_handler[\possibilities][\virRate].size.rand;
-		indices[\density] = ~rl_handler[\possibilities][\density].size.rand;
-		indices[\pan] = ~rl_handler[\possibilities][\pan].size.rand;
-		indices[\vibRange] = ~rl_handler[\possibilities][\vibRange].size.rand;
-		indices[\amp] = ~rl_handler[\possibilities][\amp].size.rand;
-		indices[\morphRate] = ~rl_handler[\possibilities][\morphRate].size.rand;
-		indices[\target] = ~rl_handler[\possibilities][\target].size.rand;
+		("previous_pitch is: " ++ ~rl_handler[\previous_pitch]).postln;
+		("current pitch is: " ++ pitch).postln;
+		("the performance of the system has been (the greater the better): " ++ reward).postln;
+		~rl_handler[\previous_pitch] = pitch; // update previous pitch
+		// if reward is positive then train the network accordingly
+		if (reward > 0) {
+			var argument = "";
+			var output, actions, parsing_indices;
+			"learning".postln;
+			~rl_handler[\create_data_file].(features,~rl_handler[\indices]);
+			"./neural_net train train.data".systemCmd;
+			"updating indices".postln;
+			2.do{arg i; features[i].do{arg feat; argument = argument ++ feat ++ " "; }};
+			output = ("./neural_net use " ++ argument).unixCmdGetStdOut;
+			parsing_indices = output.findAll(",").insert(0,-2);
+			8.do{arg i;
+				actions = actions.add(output[(parsing_indices[i]+2)..(parsing_indices[i+1]-1)].interpret)
+			};
+			indices.keysDo{ arg k,i;
+				if (0.7.coin) { // normally update them using the neural net, but everynow and then proceed randomly to bring forth some indeterminacy
+					indices[k] = ControlSpec(0,possibilities[k].size - 1,step:1).map(actions[i]);
+				} {
+					indices[k] = possibilities[k].size.rand;
+				}
+			};	
+		} {
+			indices.keysDo{ arg k,i;
+				indices[k] = possibilities[k].size.rand;
+			};
+		}
 	};
 };

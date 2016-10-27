@@ -44,7 +44,7 @@ var master_channel = 35;
 								100.do{ // morph with previous contents !!
 									~audio_engine[\previous_signal][i] = ~audio_engine[\previous_signal][i].blend(signal,0.03);
 									~audio_engine[\buffers][i+1].sendCollection(~audio_engine[\previous_signal][i].normalize.asWavetable);
-									0.007.wait; // wait a bit to morph it smoothly
+									0.01.wait; // wait a bit to morph it smoothly
 								};
 								if (i==1) { // eventually free the condition
 									condition.test_(true);
@@ -93,7 +93,7 @@ Routine({
 				freq.do {arg f;
 					Synth([\vosc,\osc].wchoose([0.6,0.4]), // randomly choose a vosc or osc
 						[
-							\freq, f, \vibRate, parameters[\vibRate], \dur, wait * rrand(1.1,1.5),
+							\freq, f, \vibRate, parameters[\vibRate], \dur, wait * rrand(1.2,1.6),
 							\out, master_channel,\pan, parameters[\pan],
 							\vibRange, f * parameters[\vibRange],\amp, parameters[\amp],
 							\morphRate, parameters[\morphRate]

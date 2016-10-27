@@ -12,6 +12,7 @@ Server.default.waitForBoot({
 	Include.relative("audio_engine.scd"); 
 	Include.relative("sensors_handler.scd");
 	Include.relative("rl.scd");
+	~rl_handler[\reset].();
 	Routine({loop{ // main loop
 		if (~sensors_handler[\is_headset_on].()) {
 			~audio_engine[\parametrise].(~rl_handler[\action].(~eeg_handler[\get_eeg].())); // select an action and parametrise audio accordingly (this will launch an eeg analysis of course)
@@ -21,10 +22,21 @@ Server.default.waitForBoot({
 			~audio_engine[\update_buffers].().wait; 
 		} { // when headset is off stop sound and reset
 			~audio_engine[\run] = false;
-			~rl_handler[\reset].(); // reset
+			~rl_handler[\reset].();
 		};
 		0.1.wait; // this is for safety mostly - when headset is on the code will call external commands synchronously - the wait time will be many seconds
 	}}).play(AppClock);
+	Routine{loop{
+		if (~sensors_handler[\is_headset_on].()) {
+			~sensors_handler[\led_on].();
+			1.wait;
+			~sensors_handler[\led_off].();
+			1.wait;
+		} {
+			~sensors_handler[\led_on].();
+			1.wait;
+		}
+	}}.play(AppClock);
 	Routine({loop{ // this won't be very responsive unfortunately as all the asynchronous calls of the previous loop will freeze this one too
 		~audio_engine[\master_synth].set(\amp, ~sensors_handler[\get_pot_value].()); // that won't be very responsive on purpose
 		0.1.wait;
