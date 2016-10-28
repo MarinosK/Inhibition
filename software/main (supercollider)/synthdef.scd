@@ -15,7 +15,7 @@ SynthDef(\vosc, { // will morph 3 consequtive tables
 	signal = signal * EnvGen.kr(Env([0,1,1,0],[dur/4,dur/2,dur/4],[4,0,-4]),doneAction:2);
 	signal = FreeVerb.ar(signal,0.1,Rand(0.1,0.4),Rand(0.1,0.5));
 	signal = Pan2.ar(signal, SinOsc.kr(pan, Rand(0,pi))); 
-	Out.ar(out, signal * 0.6);
+	Out.ar(out, signal * 0.5);
 }).add;
 
 Server.default.sync;
@@ -29,7 +29,7 @@ SynthDef(\osc, { // smoother version
 	signal = signal * EnvGen.kr(Env([0,1,1,0],[dur/4,dur/2,dur/4],[4,0,-4]),doneAction:2);
 	signal = FreeVerb.ar(signal,0.1,Rand(0.1,0.4),Rand(0.1,0.5));
 	signal = Pan2.ar(signal, SinOsc.kr(pan, Rand(0,pi))); 
-	Out.ar(out, signal * 0.6);
+	Out.ar(out, signal * 0.5);
 }).add;
 
 Server.default.sync;

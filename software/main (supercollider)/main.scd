@@ -33,12 +33,13 @@ Server.default.waitForBoot({
 			~sensors_handler[\led_off].();
 			1.wait;
 		} {
+			~audio_engine[\run] = false;
 			~sensors_handler[\led_on].();
 			1.wait;
 		}
 	}}.play(AppClock);
 	Routine({loop{ // this won't be very responsive unfortunately as all the asynchronous calls of the previous loop will freeze this one too
-		~audio_engine[\master_synth].set(\amp, ~sensors_handler[\get_pot_value].()); // that won't be very responsive on purpose
+		~audio_engine[\master_synth].set(\amp, ~sensors_handler[\get_pot_value].() * 0.8); // that won't be very responsive on purpose
 		0.1.wait;
 	}}).play(AppClock);
 });

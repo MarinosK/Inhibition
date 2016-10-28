@@ -89,9 +89,28 @@ gpio_direction CSID5 out
 gpio_output CSID5 1
 gpio_export XIO_P1
 gpio_direction XIO_P1 in
-export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
-jackd -P75 -dalsa -Phw:0 -p1024 -n3 -s -r44100 &
 exit 0
+
+as su:
+crontab -e
+and add:
+@reboot /bin/bash /home/chip/Inhibition/run.sh
+
+create /home/chip/run.sh and add: 
+source /usr/local/bin/gpio.sh
+#!/bin/sh
+export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
+export DISPLAY=:0
+PATH=$PATH:/usr/local/bin
+cd /home/chip/Inhibition
+now=$(date +"%m_%d_%Y")
+date >> "log_$now.log"
+jackd -P99 -dalsa -Phw:1 -p8192 -n3 -s -r44100 &
+sleep 15
+sclang main.scd >> "log_$now.log"
+exit 0
+
+chmod +x run.sh
 
 - clean up
 /etc/init.d/halt

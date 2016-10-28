@@ -93,7 +93,7 @@ Routine({
 				freq.do {arg f;
 					Synth([\vosc,\osc].wchoose([0.6,0.4]), // randomly choose a vosc or osc
 						[
-							\freq, f, \vibRate, parameters[\vibRate], \dur, wait * rrand(1.2,1.6),
+							\freq, f, \vibRate, parameters[\vibRate], \dur, wait * rrand(1.3,1.9),
 							\out, master_channel,\pan, parameters[\pan],
 							\vibRange, f * parameters[\vibRange],\amp, parameters[\amp],
 							\morphRate, parameters[\morphRate]
