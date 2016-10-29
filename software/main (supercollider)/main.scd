@@ -8,10 +8,10 @@
 
 Server.default.waitForBoot({
 	~led_is_off = false;
-	Include.relative("synthdef.scd"); 
+	Include.relative("synthdef.scd");
+	Include.relative("sensors_handler.scd");
 	Include.relative("eeg_handler.scd");  
 	Include.relative("audio_engine.scd"); 
-	Include.relative("sensors_handler.scd");
 	Include.relative("rl.scd");
 	~rl_handler[\reset].();
 	Routine({loop{ // main loop

@@ -42,9 +42,11 @@ var master_channel = 35;
 							signal = signal * Signal.welchWindow(128); // smooth it out
 							Routine({
 								100.do{ // morph with previous contents !!
-									~audio_engine[\previous_signal][i] = ~audio_engine[\previous_signal][i].blend(signal,0.03);
-									~audio_engine[\buffers][i+1].sendCollection(~audio_engine[\previous_signal][i].normalize.asWavetable);
-									0.01.wait; // wait a bit to morph it smoothly
+									if (~sensors_handler[\is_headset_on].()) { // this is a very ugly hack but the truth is that it simplifies the whole architecture a lot... so be it
+										~audio_engine[\previous_signal][i] = ~audio_engine[\previous_signal][i].blend(signal,0.03);
+										~audio_engine[\buffers][i+1].sendCollection(~audio_engine[\previous_signal][i].normalize.asWavetable);
+										0.01.wait; // wait a bit to morph it smoothly
+									};
 								};
 								if (i==1) { // eventually free the condition
 									condition.test_(true);
