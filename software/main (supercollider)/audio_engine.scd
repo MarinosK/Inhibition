@@ -5,12 +5,12 @@
 */
 
 // groups
-var group = Group.new(Server.default);
 var master_channel = 35;
 
 // 
 ~audio_engine = Environment.new;
 ~audio_engine.use{
+	~group = Group.new(Server.default);
 	~master_synth = Synth(\master, [\in, master_channel],Server.default,\addToTail);
 	~master_amp = 1;
 	~previous_signal = Signal.newClear(128)!2; // an array holding the two previous eeg wavetables
@@ -74,30 +74,37 @@ Routine({
 			var wait = parameters[\duration];
 			parameters[\density].do{
 				var freq;
+				var timbre;
 				var switch = [1,2,3].wchoose([0.45,0.45,0.1]); // 3 frequency registers 
 				case
 				{switch == 1} { // the lowest region is just harmonics of the target 
+					timbre = [\vosc,\osc].wchoose([0.3,0.7]);
 					if (target_frequency > 6 ) { 
-						freq = target_frequency * (7..11).choose;
+						freq = target_frequency * (6..11).choose;
 					} {
 						freq = target_frequency * (20..30).choose;
 					}
 				}
-				{switch == 2} {freq = rrand(100,600.0);}
-				{switch == 3} {freq = rrand(1000,6000);};
-				if (freq < 120 ) {
+				{switch == 2} {
+					timbre = [\vosc,\osc].wchoose([0.7,0.3]);
+					freq = rrand(100,600.0);
+				}
+				{switch == 3} {
+					timbre = [\vosc,\osc].wchoose([0.5,0.5]);
+					freq = rrand(1000,6000);
+				};
+				if ((freq / (freq + target_frequency)) < 0.94 ) {
 					freq = [freq];
 				} {
 					freq = [freq, freq + target_frequency]; // when possible create beats
 				};
 				freq.do {arg f;
-					Synth([\vosc,\osc].wchoose([0.6,0.4]), // randomly choose a vosc or osc
-						[
-							\freq, f, \vibRate, parameters[\vibRate], \dur, wait * rrand(1.3,1.9),
-							\out, master_channel,\pan, parameters[\pan],
-							\vibRange, f * parameters[\vibRange],\amp, parameters[\amp],
-							\morphRate, parameters[\morphRate]
-					],group.asTarget);
+					Synth(timbre, // randomly choose a vosc or osc
+							[   \freq, f, \vibRate, parameters[\vibRate], \dur, wait * rrand(1.3,1.7),
+								\out, master_channel,\pan, parameters[\pan],
+								\vibRange, f * parameters[\vibRange],\amp, parameters[\amp],
+								\morphRate, parameters[\morphRate]
+							],~audio_engine[\group].asTarget);
 				}
 			};
 			wait.wait;

@@ -1722,6 +1722,6 @@ Wire Wire Line
 Wire Wire Line
 	9950 5700 9800 5700
 NoConn ~ 9200 4900
-Text Notes 100  8200 0    139  ~ 0
-www.inhibition-eeg.com\nwww.marinoskoutsomichalis.com
+Text Notes 8650 7750 0    139  ~ 0
+www.inhibition-eeg.com
 $EndSCHEMATC
