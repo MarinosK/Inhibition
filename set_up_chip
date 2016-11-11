@@ -2,6 +2,11 @@
 http://flash.getchip.com/
 flash -> Debian 4.4 (Headless or GUI)
 
+- wifi
+sudo nmcli device wifi connect '(your wifi network name/SSID)' password '(your wifi password)' 
+OR sudo nmcli device wifi connect '(your wifi network name/SSID)' password '(your wifi password)' ifname wlan0
+
+
 - first update
 sudo apt-get update
 
@@ -96,9 +101,9 @@ crontab -e
 and add:
 @reboot /bin/bash /home/chip/Inhibition/run.sh
 
-create /home/chip/run.sh and add: 
-source /usr/local/bin/gpio.sh
+create /home/chip/Inhibition/run.sh and add: 
 #!/bin/sh
+source /usr/local/bin/gpio.sh
 export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
 export DISPLAY=:0
 PATH=$PATH:/usr/local/bin
