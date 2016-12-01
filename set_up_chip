@@ -104,6 +104,7 @@ crontab -e
 @reboot /bin/bash /home/chip/Inhibition/run.sh
 
 - create the running script
+su chip
 mkdir Inhibition
 nano /home/chip/Inhibition/run.sh
 #(add the followin)
