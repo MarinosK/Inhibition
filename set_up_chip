@@ -122,6 +122,7 @@ sclang main.scd >> "log_$now.log"
 exit 0
 
 - make it executable
+cd ~/Inhibition
 chmod +x run.sh
 
 - clean up script
@@ -148,7 +149,7 @@ cd ~/code/software
 cp main\ for\ workshops\ (\supercollider)\* ~/Inhibition
 cd ~/code/software
 sudo mkdir /usr/local/share/SuperCollider/Extensions/
-cp sc\ dependencies\* /usr/local/share/SuperCollider/Extensions/
+sudo cp sc\ dependencies\* /usr/local/share/SuperCollider/Extensions/
 
 - test
 cd ~/Inhibition
