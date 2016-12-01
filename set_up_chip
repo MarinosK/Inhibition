@@ -1,11 +1,11 @@
+these are instructions on how to set-up a basic working installation in C.H.I.P.
+
 - flash
 http://flash.getchip.com/
 flash -> Debian 4.4 (Headless or GUI)
 
 - wifi
-sudo nmcli device wifi connect '(your wifi network name/SSID)' password '(your wifi password)' 
-OR sudo nmcli device wifi connect '(your wifi network name/SSID)' password '(your wifi password)' ifname wlan0
-
+sudo nmcli device wifi connect '(your wifi network name/SSID)' password '(your wifi password)' ifname wlan0
 
 - first update
 sudo apt-get update
@@ -20,32 +20,34 @@ sudo apt-get upgrade
 
 - set up jack
 sudo apt-get install jackd2
-modify settings in /etc/dbus-1/system.conf by adding this at the end just before the </busconfig> (you will need to be su and use nano)
+sudo nano /etc/dbus-1/system.conf
+#(add the following just just before the </busconfig> 
 <policy user="root">
 <allow own="org.freedesktop.ReserveDevice1.Audio0"/>
 </policy>
-# (for the usb soundcard)
+#(if you plan to use an external usb soundcard add these too)
 <policy user="root">
 <allow own="org.freedesktop.ReserveDevice1.Audio1"/>
 </policy>
+
+- to test
 sudo su # IMPORTANT
 export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
 export DISPLAY=:0 # needed for headless setup
 jackd -P75 -dalsa -Phw:0 -p1024 -n3 -s -r44100 -S &
-(if you experience Xruns try with a bigger block size)
+#(if you experience Xruns try with a bigger block size)
 
 - optional, set up RT priority for Jack
-edit /etc/security/limits.conf and put these
+sudo nano /etc/security/limits.conf
+#(add these to the end))
 @realtime   -  rtprio     99
 @realtime   -  memlock    unlimited
-then as su:
+sudo su
 groupadd realtime
 usermod -a -G realtime root
 usermod -a -G realtime chip
 
 - set up SC
-(su chip)
-
 sudo apt-get install python-dev alsa-base alsa-utils libicu-dev libasound2-dev libsamplerate0-dev libsndfile1-dev libreadline-dev libxt-dev libudev-dev libavahi-client-dev libfftw3-dev cmake git gcc-4.8 g++-4.8 libjack-jackd2-dev libsndfile1-dev
 git clone --recursive git://github.com/supercollider/supercollider.git supercollider
 cd supercollider
@@ -61,7 +63,7 @@ cd ../..
 sudo mv /usr/local/share/SuperCollider/SCClassLibrary/Common/GUI /usr/local/share/SuperCollider/SCClassLibrary/scide_scqt/GUI
 sudo mv /usr/local/share/SuperCollider/SCClassLibrary/JITLib/GUI /usr/local/share/SuperCollider/SCClassLibrary/scide_scqt/JITLibGUI
 
-- if you also need the sc plugins
+- optional (if you also need the sc plugins)
 git clone --recursive https://github.com/supercollider/sc3-plugins.git
 cd sc3-plugins && mkdir build && cd build
 export CC=/usr/bin/gcc-4.8
@@ -70,10 +72,9 @@ cmake -DSC_PATH=/home/chip/supercollider ..
 make
 sudo make install
 
-- some essential tools
-sudo apt-get install clang sox python3 python3-setuptools
+- some tools you will probably need
+sudo apt-get install clang sox python3 python3-setuptools libfann-dev
 sudo wget -O /usr/local/bin/gpio.sh http://fordsfords.github.io/gpio_sh/gpio.sh
-
 
 - set up SPI support (requires new kernel)
 wget https://dl.dropboxusercontent.com/u/48891705/chip/4.4.11w1TH%2B.tgz
@@ -84,24 +85,28 @@ cd /boot
 rm zImage
 cp vmlinuz-4.4.11w1TH+ zImage
 
-(a test and some info here: http://www.chip-community.org/index.php/SPI_support)
+#(a test and some info here: http://www.chip-community.org/index.php/SPI_support)
 
-- auto boot
-add to /etc/rc.local:
+- rc.local (these will light up the LED on boot)
+sudo nano /etc/rc.local
+#(add the following before the 'exit 0')
 source /usr/local/bin/gpio.sh
 gpio_export CSID5
 gpio_direction CSID5 out
 gpio_output CSID5 1
 gpio_export XIO_P1
 gpio_direction XIO_P1 in
-exit 0
 
-as su:
+- crontab
+sudo su
 crontab -e
-and add:
+#(add the following:)
 @reboot /bin/bash /home/chip/Inhibition/run.sh
 
-create /home/chip/Inhibition/run.sh and add: 
+- create the running script
+mkdir Inhibition
+nano /home/chip/Inhibition/run.sh
+#(add the followin)
 #!/bin/sh
 source /usr/local/bin/gpio.sh
 export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
@@ -110,13 +115,47 @@ PATH=$PATH:/usr/local/bin
 cd /home/chip/Inhibition
 now=$(date +"%m_%d_%Y")
 date >> "log_$now.log"
-jackd -P99 -dalsa -Phw:1 -p8192 -n3 -s -r44100 &
+jackd -P75 -dalsa -Phw:0 -p8192 -n3 -s -r44100 &
+#jackd -P75 -dalsa -Phw:1 -p8192 -n3 -s -r44100 & #if you use the usb soundcard
 sleep 15
 sclang main.scd >> "log_$now.log"
 exit 0
 
+- make it executable
 chmod +x run.sh
 
-- clean up
-/etc/init.d/halt
+- clean up script
+sudo nano /etc/init.d/halt
+#(add this before anything else)
 gpio_output CSID5 0
+
+- download compile and put the basic code bundle in chip
+su chip
+git clone https://github.com/MarinosK/Inhibition code
+cd code/software/ML\ for\ workshop\ (c++)
+mkdir build
+cd build
+cmake ..
+make
+cp Install/* ~/Inhibition
+cd ~/code/read_spi\ (c++)/
+mkdir build
+cd build
+cmake ..
+make
+cp Install/* ~/Inhibition
+cd ~/code
+cp main\ for\ workshops\ (supercollider)\* ~/Inhibition
+cd ~/code
+cp sc\ dependencies\* /usr/local/share/SuperCollider/Extensions/
+
+- test
+cd ~/Inhibition
+sudo su
+#(if jackd is not already running)
+sudo su # IMPORTANT
+export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
+export DISPLAY=:0 # needed for headless setup
+jackd -P75 -dalsa -Phw:0 -p1024 -n3 -s -r44100 -S &
+#(then)
+sclang main.scd
