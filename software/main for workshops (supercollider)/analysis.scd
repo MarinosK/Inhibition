@@ -17,7 +17,7 @@
 				var fft = FFT(LocalBuf(1024, 1), sig); // fft analysis
 				var pulseCount = PulseCount.kr(Impulse.kr(1.8.reciprocal)); // triggers (every timeInterval)
 				var pitch,hasPitch, analysis; 
-				# pitch, hasPitch = Tartini.kr(sig);
+				# pitch, hasPitch = Pitch.kr(sig);
 				analysis = [ // analysis UGens herein
 					pitch,
 					SpecCentroid.kr(fft), // spectral centroid
