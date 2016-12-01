@@ -140,7 +140,7 @@ cd build
 cmake ..
 make
 cp Install/* ~/Inhibition
-cd ~/code/read_spi\ (\c++)\/
+cd ~/code/software/read_spi\ (\c++)\/
 mkdir build
 cd build
 cmake ..
