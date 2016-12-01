@@ -144,9 +144,10 @@ cd build
 cmake ..
 make
 cp Install/* ~/Inhibition
-cd ~/code
+cd ~/code/software
 cp main\ for\ workshops\ (\supercollider)\* ~/Inhibition
-cd ~/code
+cd ~/code/software
+sudo mkdir /usr/local/share/SuperCollider/Extensions/
 cp sc\ dependencies\* /usr/local/share/SuperCollider/Extensions/
 
 - test
