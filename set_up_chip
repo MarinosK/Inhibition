@@ -65,12 +65,13 @@ sudo mv /usr/local/share/SuperCollider/SCClassLibrary/JITLib/GUI /usr/local/shar
 
 - optional (if you also need the sc plugins)
 git clone --recursive https://github.com/supercollider/sc3-plugins.git
+cd sc3-plugins
 #(optional ->if you want you can delete all those plugins that you won't use)
 mv MCLDUGens ../ && mv PitchDetection ../
 rm -rf * #(be careful with that..)
 mv ../MCLDUGens . && mv PitchDetection .
 #(go on compile)
-cd sc3-plugins && mkdir build && cd build
+mkdir build && cd build
 export CC=/usr/bin/gcc-4.8
 export CXX=/usr/bin/g++-4.8
 cmake -DSC_PATH=/home/chip/supercollider ..
