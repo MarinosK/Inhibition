@@ -78,6 +78,7 @@ sudo apt-get install clang sox python3 python3-setuptools libfann-dev
 sudo wget -O /usr/local/bin/gpio.sh http://fordsfords.github.io/gpio_sh/gpio.sh
 
 - set up SPI support (requires new kernel)
+cd
 wget https://dl.dropboxusercontent.com/u/48891705/chip/4.4.11w1TH%2B.tgz
 sudo bash 
 cd /
