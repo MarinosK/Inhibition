@@ -136,23 +136,23 @@ gpio_output CSID5 0
 - download compile and put the basic code bundle in chip
 su chip
 git clone https://github.com/MarinosK/Inhibition code
-cd code/software/ML\ for\ workshop\ (\c++)\
+cd code/software/ML\ for\ workshop\ \(c++\)
 mkdir build
 cd build
 cmake ..
 make
 cp Install/* ~/Inhibition
-cd ~/code/software/read_spi\ (\c++)\/
+cd ~/code/software/read_spi\ \(c++\)/
 mkdir build
 cd build
 cmake ..
 make
 cp Install/* ~/Inhibition
 cd ~/code/software
-cp main\ for\ workshops\ (\supercollider)\* ~/Inhibition
+cp main\ for\ workshops\ \(supercollider\)/* ~/Inhibition
 cd ~/code/software
 sudo mkdir /usr/local/share/SuperCollider/Extensions/
-sudo cp sc\ dependencies\* /usr/local/share/SuperCollider/Extensions/
+sudo cp sc\ dependencies/* /usr/local/share/SuperCollider/Extensions/
 
 - test
 cd ~/Inhibition
