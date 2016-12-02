@@ -70,7 +70,7 @@ cd sc3-plugins
 cd source
 mv MCLDUGens ../ && mv PitchDetection ../
 rm -rf * #(be careful with that..)
-mv ../MCLDUGens . && mv PitchDetection .
+mv ../MCLDUGens . && mv ../PitchDetection .
 cd ..
 #(go on compile)
 mkdir build && cd build
