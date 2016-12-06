@@ -36,10 +36,10 @@
 			features[\centroid] = data[1][0];
 			features[\complexity] = data[2][0];
 			features[\weightedspectralmaximum] = data[3][0];
-			features[\sharpness] = data[4][0];
-			features[\dissonance] = data[5][0];
-			features[\spread] = data[6][0];
-			features[\slope] = data[7][0];
+			// features[\sharpness] = data[4][0];
+			// features[\dissonance] = data[5][0];
+			// features[\spread] = data[6][0];
+			// features[\slope] = data[7][0];
 		};
 		// condition.wait;
 		// clean temporaries

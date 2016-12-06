@@ -10,23 +10,23 @@
 		var analysisBuffer;
 		var condition = Condition.new(false);
 		var score = Score([
-			[0, (analysisBuffer = Buffer.new(Server.default, 2, 8)).allocMsg ], // a 8-channel Buffer
+			[0, (analysisBuffer = Buffer.new(Server.default, 2, 4)).allocMsg ], // a 4-channel Buffer
 			//then the SynthDefs
 			[0, [\d_recv, SynthDef(\analysis, {
 				var sig = SoundIn.ar(0); // will come from NRT input file
 				var fft = FFT(LocalBuf(1024, 1), sig); // fft analysis
 				var pulseCount = PulseCount.kr(Impulse.kr(1.8.reciprocal)); // triggers (every timeInterval)
 				var pitch,hasPitch, analysis; 
-				# pitch, hasPitch = Tartini.kr(sig);
+				# pitch, hasPitch = Pitch.kr(sig);
 				analysis = [ // analysis UGens herein
 					pitch,
 					SpecCentroid.kr(fft), // spectral centroid
 					SpecFlatness.kr(fft), // spectral flatness
-					SpecPcile.kr(fft,0.8), // 80-SpecPcile
-					FFTCrest.kr(fft), // spectral crest
-					SensoryDissonance.kr(fft), // Sensory Dissonance
-					FFTSpread.kr(fft) * 0.000001,
-					FFTSlope.kr(fft)
+					SpecPcile.kr(fft,0.8) // 80-SpecPcile
+					//FFTCrest.kr(fft), // spectral crest
+					// SensoryDissonance.kr(fft), // Sensory Dissonance
+					// FFTSpread.kr(fft) * 0.000001,
+					// FFTSlope.kr(fft)
 				];
 				BufWr.kr(analysis, analysisBuffer, pulseCount, loop: 0); // write analysis data
 				BufWr.kr(pulseCount, analysisBuffer, DC.kr(0), 0); // at index 0 write the pulse count so that the number of measurements is known
@@ -42,7 +42,7 @@
 			options: ServerOptions.new
 			.verbosity_(-1)
 			.numInputBusChannels_(1)
-			.numOutputBusChannels_(8)
+			.numOutputBusChannels_(4)
 			.sampleRate_(4000),
 			action: { condition.test_(true).signal;} // update Condition
 		);
@@ -52,9 +52,9 @@
 	~getResults = {
 		var data;
 		var soundFile = SoundFile.openRead("temp_analysis.aiff");
-		var size = FloatArray.newClear(8); // an empty FloatArray
+		var size = FloatArray.newClear(4); // an empty FloatArray
 		soundFile.readData(size); // read data to array
-		size = size[0] * 8; // because there are 8 channels
+		size = size[0] * 4; // because there are 4 channels
 		// read data from file
 		data = FloatArray.newClear(size); // an empty FloatArray
 		soundFile.readData(data); // read data into the array
@@ -62,7 +62,7 @@
 		// preprocess and re-structure dataset
 		data = data.as(Array);  // convert to Array
 		data = data.collect(_.round(0.01)); // round to the second decimal
-		data = data.reshape( (data.size/8).asInteger, 8).flop; // re-organize data
+		data = data.reshape( (data.size/4).asInteger, 4).flop; // re-organize data
 		data;
 	};
 }
