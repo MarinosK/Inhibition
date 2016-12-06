@@ -135,8 +135,9 @@ gpio_output CSID5 0
 
 - download compile and put the basic code bundle in chip
 su chip
+cd
 git clone https://github.com/MarinosK/Inhibition code
-cd code/software/ML\ for\ workshop\ \(c++\)
+cd code/software/ML\ for\ workshop\ \(c++\)/
 mkdir build
 cd build
 cmake ..
