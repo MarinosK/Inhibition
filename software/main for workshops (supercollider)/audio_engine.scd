@@ -86,7 +86,7 @@ Routine({
 				};
 				freq.do {arg f;
 					Synth(timbre, // randomly choose a vosc or osc
-						[   \freq, f, \vibRate, parameters[\vibRate], \dur, wait * rrand(1.3,1.7),
+						[   \freq, f, \vibRate, parameters[\vibRate], \dur, wait * 1.4,
 								\out, master_channel,\pan, parameters[\pan],
 								\vibRange, f * parameters[\vibRange],\amp, parameters[\amp]
 							],~audio_engine[\group].asTarget);

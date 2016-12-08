@@ -29,7 +29,7 @@ SynthDef(\osc, { // modulated sine
 
 Server.default.sync;
 
-SynthDef(\master, { arg amp = 0.5, in = 0;
+SynthDef(\master, { arg amp = 0.15, in = 0;
 	var sound = In.ar(in,2) * amp;
 	Out.ar(0, sound);
 }).add;
